@@ -1,0 +1,153 @@
+promissions:
+- guest
+- student
+- admin
+deadlines:
+- score: 1
+network: 10.210.128.0/24
+
+description: "description.pdf"
+
+init:
+- exec: ["bash", "{{ .LABDIR }}/init.sh", "{{ .userip }}", "{{ .username }}"]
+  timeout: 5
+  worker:
+    workertype: "Docker"
+    workerpool: "main"
+
+clear:
+- exec: ["bash", "{{ .LABDIR }}/clear.sh", "{{ .userip }}", "{{ .username }}"]
+  timeout: 5
+  worker:
+    workertype: "Docker"
+    workerpool: "main"
+
+checkpoints:
+  Router:
+  - message: Hostname and ip are set correctly.
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/Router/0.sh", "{{ .userip }}", "{{ .username }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 5
+  - message: Check if unnecessary traffic is blocked.
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/Router/1.sh", "{{ .userip }}", "{{ .username }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 5
+  - message: Check if the connection can access the Internet normally.
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/Router/2.sh", "{{ .userip }}", "{{ .username }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 5
+    dependencies:
+      Router:
+      - 1
+  - message: Check if the DNS record is correct.
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/Router/3.sh", "{{ .userip }}", "{{ .username }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+  - message: Check whether the web page of srv1 can be browsed from the external network.
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/Router/4.sh", "{{ .username }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+    dependencies:
+      Router:
+      - 3
+      Srv1:
+      - 0
+  Srv1:
+  - message: Hostname and ip are set correctly(srv1).
+    command:
+    - exec: ["bash", "{{ .LABDIR }}/Srv1/0.sh", "{{ .userip }}", "{{ .username }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+      weight: 5
+  CLT:
+  - message: Hostname and ip are set correctly(clt).
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/CLT/1.sh", "{{ .userip }}", "{{ .username }}", "{{ .clt_ip }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+  - message: Can access the Internet normally through gw.
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/CLT/2.sh", "{{ .userip }}", "{{ .username }}", "{{ .clt_ip }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+    dependencies:
+      CLT:
+      - 0
+  - message: Check whether the IP behind the NAT is an WAN IP.
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/CLT/3.sh", "{{ .userip }}", "{{ .username }}", "{{ .clt_ip }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+    dependencies:
+      CLT:
+      - 2
+  - message: Check if the DNS record is correct
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/CLT/4.sh", "{{ .userip }}", "{{ .username }}", "{{ .clt_ip }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+    dependencies:
+      CLT:
+      - 0
+  - message: Check if the web page of srv1 can be browsed from the internal network.
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/CLT/5.sh", "{{ .userip }}", "{{ .username }}", "{{ .clt_ip }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+    dependencies:
+      Srv1:
+      - 0
+      CLT:
+      - 3
+  - message: Check if you can find other domains under nasa
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/CLT/6.sh", "{{ .userip }}", "{{ .username }}", "{{ .clt_ip }}"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+    dependencies:
+      CLT:
+      - 2
+
+contents:
+- type: Input
+  name: clt_ip

@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  main:
+    build: .
+    image: democ-main
+    volumes: 
+    - /app/labs/DemoC:/lab:ro
+    entrypoint: "sleep infinity"
+    network_mode: none
+

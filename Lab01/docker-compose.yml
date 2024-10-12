@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  main:
+    build: .
+    image: lab01-main
+    volumes: 
+    - /app/labs/Lab01:/lab:ro
+    - ~/.ssh:/root/.ssh:ro
+    entrypoint: "sleep infinity"
+    networks:
+      global_net:
+
+networks:
+  global_net:
+    external: true

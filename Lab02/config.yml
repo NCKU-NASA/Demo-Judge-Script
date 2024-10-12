@@ -1,0 +1,141 @@
+promissions: 
+- guest
+- student
+- admin
+deadlines:
+- score: 1
+network: 10.210.128.0/24
+  
+description: "description.pdf"
+
+init: 
+  - exec: ["bash", "{{ .LABDIR }}/init.sh"]
+    timeout: 5
+    worker:
+      workertype: "Docker"
+      workerpool: "main"
+
+clear: 
+  - exec: ["bash", "{{ .LABDIR }}/clear.sh"]
+    timeout: 5
+    worker:
+      workertype: "Docker"
+      workerpool: "main"
+
+checkpoints:
+  General:
+  - message: "Provide -h option to show the help message."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/General/0.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 14
+    dependencies: {}
+  - message: "Invalid arguments should be rejected with a non-zero status code, with the error message and help message."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/General/1.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 14
+    dependencies: {}
+  - message: "The number of hash strings should match the number of files provided."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/General/2.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 6
+    dependencies: {}
+  - message: "Shell script received two types of hashed value it should be rejected with non-zero status code with the error message."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/General/3.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 6
+    dependencies: {}
+  HashValidation:
+  - message: "checksum doesn't match the input hash, return with a non-zero status code with the error message (single file)."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/HashValidation/0.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+    dependencies: {}
+  - message: "checksum doesn't match the input hashes, return with a non-zero status code with the error message (multi file)."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/HashValidation/1.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 5
+    dependencies: {}
+  ParsingFiles:
+  - message: "Print out all username in the files."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/HashValidation/0.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+    dependencies: {}
+  - message: "If the user presses \"n\" or Enter, the script will exit with zero status code."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/HashValidation/1.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+    dependencies: {}
+  - message: "Invalid file format or contents should be rejected with a non-zero status code, with the error message."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/HashValidation/2.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 5
+    dependencies: {}
+  CreateUsers:
+  - message: "Skip users if they are already created or exist in the OS and print the warning message."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/CreateUsers/0.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 10
+    dependencies: {}
+  - message: "Users information are correct."
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/CreateUsers/1.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 5
+    dependencies: {}
+  - message: "Users can login"
+    commands:
+    - exec: ["{{ .pythonname }}", "{{ .LABDIR }}/CreateUsers/1.py"]
+      timeout: 60
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 5
+    dependencies: {}
+
+contents: 
+- type: Upload
+  name: sahw2.sh

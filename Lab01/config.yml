@@ -1,0 +1,46 @@
+promissions:
+- guest
+- student
+- admin
+deadlines:
+- score: 1
+network: 10.210.128.0/24
+ 
+description: "description.pdf"
+
+init:
+- exec: ["bash", "{{ .LABDIR }}/init.sh"]
+  timeout: 5
+  worker:
+    workertype: "Docker"
+    workerpool: "main"
+
+clear: 
+- exec: ["bash", "{{ .LABDIR }}/clear.sh"]
+  timeout: 5
+  worker:
+    workertype: "Docker"
+    workerpool: "main"
+
+checkpoints:
+  General:
+  - message: linux can ping 8.8.8.8
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/General/0.sh", "{{ .userip }}", "{{ .username }}"]
+      timeout: 20
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 50
+    dependencies: {}
+  - message: sudo can no password
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/General/1.sh", "{{ .userip }}", "{{ .username }}"]
+      timeout: 20
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 50
+    dependencies: {}
+
+contents: []

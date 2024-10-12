@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  main:
+    build: .
+    image: lab02-main
+    volumes: 
+    - /app/labs/Lab02:/lab:ro
+    entrypoint: "sleep infinity"
+    network_mode: none
+

@@ -1,0 +1,75 @@
+promissions:
+- guest
+- student
+- admin
+deadlines:
+- score: 1
+network: 10.210.128.0/24
+ 
+description: "description.pdf"
+
+init:
+- exec: ["bash", "{{ .LABDIR }}/init.sh"]
+  timeout: 5
+  worker:
+    workertype: "Docker"
+    workerpool: "main"
+
+clear: 
+- exec: ["bash", "{{ .LABDIR }}/clear.sh"]
+  timeout: 5
+  worker:
+    workertype: "Docker"
+    workerpool: "main"
+
+checkpoints:
+  General:
+  - message: Random test 1
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/randomtest.sh"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 20
+    dependencies: {}
+  - message: Random test 2
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/randomtest.sh"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 20
+    dependencies: {}
+  - message: Random test 3
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/randomtest.sh"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 20
+    dependencies: {}
+  - message: Random test 4
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/randomtest.sh"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 20
+    dependencies: {}
+  - message: Random test 5
+    commands:
+    - exec: ["bash", "{{ .LABDIR }}/randomtest.sh"]
+      timeout: 5
+      worker:
+        workertype: "Docker"
+        workerpool: "main"
+    weight: 20
+    dependencies: {}
+
+contents:
+- type: Upload
+  name: hw.c
